@@ -1,0 +1,14 @@
+### Build ###
+target/
+
+### Environment variables ###
+.env
+.env.properties
+*.env
+
+### IntelliJ IDEA ###
+.idea/
+*.iml
+
+### VS Code ###
+.vscode/

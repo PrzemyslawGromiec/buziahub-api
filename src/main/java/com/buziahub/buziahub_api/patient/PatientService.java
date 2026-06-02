@@ -1,22 +1,21 @@
 package com.buziahub.buziahub_api.patient;
 
-import com.buziahub.buziahub_api.patient.dto.CreatePatientRequest;
-import com.buziahub.buziahub_api.patient.dto.PatientResponse;
-import com.buziahub.buziahub_api.patient.dto.PatientSearchCriteria;
-import com.buziahub.buziahub_api.patient.dto.PatientSummaryResponse;
+import com.buziahub.buziahub_api.exceptions.PatientNotFoundException;
+import com.buziahub.buziahub_api.patient.dto.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class PatientService {
 
     private final PatientRepository patientRepository;
 
+    @Transactional(readOnly = true)
     public List<PatientResponse> getAllPatients() {
         return patientRepository.findAll()
                 .stream()
@@ -53,6 +52,52 @@ public class PatientService {
 
         Patient savedPatient = patientRepository.save(patient);
         return PatientResponse.from(savedPatient);
+    }
+
+    @Transactional
+    public PatientResponse updatePatientName(
+            Long patientId,
+            UpdatePatientNameRequest request
+    ) {
+        Patient patient = findPatientOrThrow(patientId);
+
+        patient.updateName(
+                request.firstName(),
+                request.lastName()
+        );
+        return PatientResponse.from(patient);
+    }
+
+    @Transactional
+    public PatientResponse updateContactDetails(
+            Long patientId,
+            UpdatePatientContactDetails details
+    ) {
+        Patient patient = findPatientOrThrow(patientId);
+
+        patient.updateContactDetails(
+                details.address(),
+                details.phoneNumber(),
+                details.emergencyContact()
+        );
+
+        return PatientResponse.from(patient);
+    }
+
+    public PatientResponse getPatientById(Long id) {
+        Patient patient = findPatientOrThrow(id);
+        return PatientResponse.from(patient);
+    }
+
+    public PatientResponse archivePatient(Long id) {
+        Patient patient = findPatientOrThrow(id);
+        patient.archive();
+        return PatientResponse.from(patient);
+    }
+
+    private Patient findPatientOrThrow(Long patientId) {
+        return patientRepository.findById(patientId)
+                .orElseThrow(() -> new PatientNotFoundException(patientId));
     }
 
 }

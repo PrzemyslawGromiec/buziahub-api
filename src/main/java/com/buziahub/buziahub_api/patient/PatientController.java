@@ -1,9 +1,6 @@
 package com.buziahub.buziahub_api.patient;
 
-import com.buziahub.buziahub_api.patient.dto.CreatePatientRequest;
-import com.buziahub.buziahub_api.patient.dto.PatientResponse;
-import com.buziahub.buziahub_api.patient.dto.PatientSearchCriteria;
-import com.buziahub.buziahub_api.patient.dto.PatientSummaryResponse;
+import com.buziahub.buziahub_api.patient.dto.*;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -23,6 +20,15 @@ public class PatientController {
     public ResponseEntity<List<PatientResponse>> getAllPatients() {
         return ResponseEntity
                 .ok(patientService.getAllPatients());
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<PatientResponse> getPatientById(
+            @PathVariable Long id
+    ) {
+        return ResponseEntity.ok(
+                patientService.getPatientById(id)
+        );
     }
 
     @GetMapping("/summary")
@@ -45,5 +51,28 @@ public class PatientController {
                 .body(patientService.createPatient(request));
     }
 
+    @PatchMapping("/{id}/name")
+    public ResponseEntity<PatientResponse> updateName(
+            @PathVariable Long id,
+            @Valid @RequestBody UpdatePatientNameRequest request
+    ) {
+        return ResponseEntity.ok(
+                patientService.updatePatientName(id, request)
+        );
+    }
 
+    @PatchMapping("/{id}/contact-details")
+    public ResponseEntity<PatientResponse> updateContactDetails(
+            @PathVariable Long id,
+            @Valid @RequestBody UpdatePatientContactDetails details
+    ) {
+        return ResponseEntity.ok(
+                patientService.updateContactDetails(id, details)
+        );
+    }
+
+    @PatchMapping("/{id}/archive")
+    public ResponseEntity<PatientResponse> archivePatient(@PathVariable Long id) {
+        return ResponseEntity.ok(patientService.archivePatient(id));
+    }
 }

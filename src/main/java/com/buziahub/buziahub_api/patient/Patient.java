@@ -75,12 +75,22 @@ public class Patient {
         }
     }
 
-    public void updatePhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
-    }
+    public void updateContactDetails(
+            String address,
+            String phoneNumber,
+            String emergencyContact
+    ) {
+        if (address != null) {
+            this.address = address;
+        }
 
-    public void updateAddress(String address) {
-        this.address = address;
+        if (phoneNumber != null) {
+            this.phoneNumber = phoneNumber;
+        }
+
+        if (emergencyContact != null) {
+            this.emergencyContact = emergencyContact;
+        }
     }
 
     public void archive() {

@@ -16,13 +16,22 @@ public class PatientService {
     private final PatientRepository patientRepository;
 
     @Transactional(readOnly = true)
-    public List<PatientResponse> getAllPatients() {
+    public List<PatientResponse> getAllPatientsIncludingArchived() {
         return patientRepository.findAll()
                 .stream()
                 .map(PatientResponse::from)
                 .toList();
     }
 
+    @Transactional(readOnly = true)
+    public List<PatientResponse> getActivePatients() {
+        return patientRepository.findByActiveTrue()
+                .stream()
+                .map(PatientResponse::from)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
     public List<PatientSummaryResponse> getAllPatientsSummary() {
         return patientRepository.findAll()
                 .stream()
@@ -30,6 +39,7 @@ public class PatientService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
     public List<PatientSummaryResponse> searchPatients(PatientSearchCriteria criteria) {
         return patientRepository
                 .findAll(PatientSpecification.withCriteria(criteria))
@@ -84,6 +94,7 @@ public class PatientService {
         return PatientResponse.from(patient);
     }
 
+    @Transactional(readOnly = true)
     public PatientResponse getPatientById(Long id) {
         Patient patient = findPatientOrThrow(id);
         return PatientResponse.from(patient);

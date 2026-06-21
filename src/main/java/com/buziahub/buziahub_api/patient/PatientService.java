@@ -106,6 +106,14 @@ public class PatientService {
         return PatientResponse.from(patient);
     }
 
+    public List<String> getPatientsNames() {
+        return patientRepository.findAll()
+                .stream()
+                .map(p -> p.getFirstName() + " " + p.getLastName())
+                .toList();
+    }
+
+
     private Patient findPatientOrThrow(Long patientId) {
         return patientRepository.findById(patientId)
                 .orElseThrow(() -> new PatientNotFoundException(patientId));

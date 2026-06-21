@@ -1,6 +1,5 @@
 package com.buziahub.buziahub_api.patient;
 
-import com.buziahub.buziahub_api.patient.dto.PatientResponse;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 

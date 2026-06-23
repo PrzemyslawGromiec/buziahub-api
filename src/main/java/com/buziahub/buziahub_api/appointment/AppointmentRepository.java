@@ -1,6 +1,5 @@
 package com.buziahub.buziahub_api.appointment;
 
-import com.buziahub.buziahub_api.appointment.dto.AppointmentSummary;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.time.LocalDateTime;
@@ -9,19 +8,27 @@ import java.util.Optional;
 
 public interface AppointmentRepository extends JpaRepository<Appointment, Long> {
 
+    List<Appointment> findByPatientId(Long patientId);
+
     List<Appointment> findByStatusAndStartTimeAfterOrderByStartTimeAsc(
             AppointmentStatus status,
             LocalDateTime startTime
     );
 
-    Optional<Appointment> findFirstByPatientIdAndStartTimeAfterOrderByStartTimeAsc(
+    Optional<Appointment> findFirstByPatientIdAndStatusAndStartTimeAfterOrderByStartTimeAsc(
             Long patientId,
+            AppointmentStatus status,
             LocalDateTime now
     );
 
     List<Appointment> findByPatientIdAndStatusAndStartTimeAfterOrderByStartTimeAsc(
             Long patientId,
             AppointmentStatus status,
+            LocalDateTime now
+    );
+
+    List<Appointment> findByPatientIdAndEndTimeBeforeOrderByStartTimeDesc(
+            Long patientId,
             LocalDateTime now
     );
 }

@@ -106,13 +106,12 @@ public class PatientService {
         return PatientResponse.from(patient);
     }
 
-    public List<String> getPatientsNames() {
-        return patientRepository.findAll()
+    public List<PatientNameResponse> getPatientNames() {
+        return patientRepository.findByActiveTrue()
                 .stream()
-                .map(p -> p.getFirstName() + " " + p.getLastName())
+                .map(PatientNameResponse::from)
                 .toList();
     }
-
 
     private Patient findPatientOrThrow(Long patientId) {
         return patientRepository.findById(patientId)

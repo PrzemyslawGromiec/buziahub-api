@@ -81,4 +81,9 @@ public class PatientController {
     public ResponseEntity<PatientResponse> archivePatient(@PathVariable Long id) {
         return ResponseEntity.ok(patientService.archivePatient(id));
     }
+
+    @GetMapping("/names")
+    public ResponseEntity<List<PatientNameResponse>> getAllPatientNames() {
+        return ResponseEntity.ok(patientService.getPatientNames());
+    }
 }

@@ -4,10 +4,7 @@ import com.buziahub.buziahub_api.common.Gender;
 import com.buziahub.buziahub_api.patient.dto.PatientSummaryResponse;
 import org.hibernate.SessionFactory;
 import org.hibernate.stat.Statistics;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
@@ -23,6 +20,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class PatientSummaryPerformanceTest {
 
+    private static final String TEST_PREFIX = "PERF_TEST_";
+
     @Autowired
     private PatientService patientService;
 
@@ -35,30 +34,39 @@ public class PatientSummaryPerformanceTest {
     @BeforeAll
     @Transactional
     void createTestData() {
-        long currentCount = patientRepository.count();
-        if (currentCount < 100) {
+        long testPatientCount = patientRepository.findByFirstNameStartingWith(TEST_PREFIX).size();
+        if (testPatientCount < 100) {
             System.out.println("\n=== Creating test data ===");
             createTestPatients(10000);
-            System.out.println("Created " + patientRepository.count() + " patients\n");
+            long count = patientRepository.findByFirstNameStartingWith(TEST_PREFIX).size();
+            System.out.println("Created " + count + " test patients\n");
         } else {
-            System.out.println("\n=== Using existing " + currentCount + " patients ===\n");
+            System.out.println("\n=== Using existing " + testPatientCount + " test patients ===\n");
         }
     }
 
     private void createTestPatients(int count) {
         for (int i = 0; i < count; i++) {
             Patient patient = Patient.create(
-                    "PerfTest_FirstName" + i,
-                    "PerfTest_LastName" + i,
+                    TEST_PREFIX + i,
+                    "TestLastName" + i,
                     LocalDate.of(1990, 1, 1),
                     Gender.OTHER,
-                    "Address " + i,
+                    "TestAddress" + i,
                     "555-000" + (i % 10000),
-                    "Emergency " + i,
-                    "Comments " + i
+                    "TestEmergency" + i,
+                    "TestComments" + i
             );
             patientRepository.save(patient);
         }
+    }
+
+    @AfterAll
+    @Transactional
+    void cleanupTestData() {
+        List<Patient> testPatients = patientRepository.findByFirstNameStartingWith(TEST_PREFIX);
+        patientRepository.deleteAll(testPatients);
+        System.out.println("\n=== Cleaned up " + testPatients.size() + " test patients ===\n");
     }
 
     @BeforeEach

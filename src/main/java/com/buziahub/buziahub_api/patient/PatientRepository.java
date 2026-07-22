@@ -11,14 +11,16 @@ public interface PatientRepository extends JpaRepository<Patient, Long>, JpaSpec
 
     List<Patient> findByActiveTrue();
 
+    List<Patient> findByFirstNameStartingWith(String prefix);
+
     @Query("""
-        SELECT new com.buziahub.buziahub_api.patient.dto.PatientSummaryResponse(
-            p.firstName,
-            p.lastName,
-            p.phoneNumber
-        )
-        FROM Patient p 
-        WHERE p.active = true
-    """)
+                SELECT new com.buziahub.buziahub_api.patient.dto.PatientSummaryResponse(
+                    p.firstName,
+                    p.lastName,
+                    p.phoneNumber
+                )
+                FROM Patient p 
+                WHERE p.active = true
+            """)
     List<PatientSummaryResponse> findAllSummaries();
 }

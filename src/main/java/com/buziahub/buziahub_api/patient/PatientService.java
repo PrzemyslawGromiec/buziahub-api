@@ -3,6 +3,8 @@ package com.buziahub.buziahub_api.patient;
 import com.buziahub.buziahub_api.exceptions.PatientNotFoundException;
 import com.buziahub.buziahub_api.patient.dto.*;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -12,6 +14,8 @@ import java.util.List;
 @RequiredArgsConstructor
 @Transactional
 public class PatientService {
+
+    private static final Logger logger = LoggerFactory.getLogger(PatientService.class);
 
     private final PatientRepository patientRepository;
 
@@ -111,6 +115,14 @@ public class PatientService {
                 .stream()
                 .map(PatientNameResponse::from)
                 .toList();
+    }
+
+    @Transactional
+    public long deleteAllPatients() {
+        long count = patientRepository.count();
+        patientRepository.deleteAll();
+        logger.warn("All {} patients deleted", count);
+        return count;
     }
 
     private Patient findPatientOrThrow(Long patientId) {

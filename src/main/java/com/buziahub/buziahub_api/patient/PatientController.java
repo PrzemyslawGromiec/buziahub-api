@@ -9,6 +9,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/patients")
@@ -85,5 +86,18 @@ public class PatientController {
     @GetMapping("/names")
     public ResponseEntity<List<PatientNameResponse>> getAllPatientNames() {
         return ResponseEntity.ok(patientService.getPatientNames());
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @DeleteMapping("/all")
+    public ResponseEntity<DeleteResponse> deleteAll() {
+        long deletedCount = patientService.deleteAllPatients();
+        return ResponseEntity.ok(
+                new DeleteResponse(
+                        "All patients deleted successfully",
+                        deletedCount,
+                        System.currentTimeMillis()
+                )
+        );
     }
 }

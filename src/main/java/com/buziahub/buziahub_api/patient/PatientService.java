@@ -140,11 +140,11 @@ public class PatientService {
         if (mode == TextMatchMode.CONTAINS) {
             boolean firstNameTooShort = criteria.firstName() != null
                     && !criteria.firstName().isBlank()
-                    && criteria.firstName().length() < 2;
+                    && criteria.firstName().trim().length() < 2;
 
             boolean lastNameTooShort = criteria.lastName() != null
                     && !criteria.lastName().isBlank()
-                    && criteria.lastName().length() < 2;
+                    && criteria.lastName().trim().length() < 2;
 
             if (firstNameTooShort || lastNameTooShort) {
                 throw new InvalidPatientSearchCriteriaException(

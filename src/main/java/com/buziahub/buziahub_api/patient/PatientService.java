@@ -1,5 +1,6 @@
 package com.buziahub.buziahub_api.patient;
 
+import com.buziahub.buziahub_api.exceptions.InvalidPatientSearchCriteriaException;
 import com.buziahub.buziahub_api.exceptions.PatientNotFoundException;
 import com.buziahub.buziahub_api.patient.dto.*;
 import lombok.RequiredArgsConstructor;
@@ -53,13 +54,10 @@ public class PatientService {
 
     @Transactional(readOnly = true)
     public Page<PatientSummaryResponse> searchPatients(PatientSearchCriteria criteria, Pageable pageable) {
-        return patientRepository.searchSummaries(
-                criteria.firstName(),
-                criteria.lastName(),
-                criteria.active(),
-                criteria.gender(),
-                pageable
-        );
+        validateSearchCriteria(criteria);
+        return patientRepository
+                .findAll(PatientSpecification.withCriteria(criteria), pageable)
+                .map(PatientSummaryResponse::from);
     }
 
     public PatientResponse createPatient(CreatePatientRequest request) {
@@ -136,5 +134,25 @@ public class PatientService {
         return patientRepository.findById(patientId)
                 .orElseThrow(() -> new PatientNotFoundException(patientId));
     }
+
+    private void validateSearchCriteria(PatientSearchCriteria criteria) {
+        TextMatchMode mode = criteria.matchMode() == null ? TextMatchMode.PREFIX : criteria.matchMode();
+        if (mode == TextMatchMode.CONTAINS) {
+            boolean firstNameTooShort = criteria.firstName() != null
+                    && !criteria.firstName().isBlank()
+                    && criteria.firstName().length() < 2;
+
+            boolean lastNameTooShort = criteria.lastName() != null
+                    && !criteria.lastName().isBlank()
+                    && criteria.lastName().length() < 2;
+
+            if (firstNameTooShort || lastNameTooShort) {
+                throw new InvalidPatientSearchCriteriaException(
+                        "CONTAINS mode requires at least 2 characters for firstName and lastName"
+                );
+            }
+        }
+    }
+
 
 }

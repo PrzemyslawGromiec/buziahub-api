@@ -6,6 +6,7 @@ public record PatientSearchCriteria(
         String firstName,
         String lastName,
         Gender gender,
-        Boolean active
+        Boolean active,
+        TextMatchMode matchMode
 ) {
 }

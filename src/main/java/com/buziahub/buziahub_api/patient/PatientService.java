@@ -5,6 +5,8 @@ import com.buziahub.buziahub_api.patient.dto.*;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,10 +39,7 @@ public class PatientService {
 
     @Transactional(readOnly = true)
     public List<PatientSummaryResponse> getAllPatientsSummary() {
-        return patientRepository.findAll()
-                .stream()
-                .map(PatientSummaryResponse::from)
-                .toList();
+        return patientRepository.findAllSummaries();
     }
 
     @Transactional(readOnly = true)
@@ -50,6 +49,17 @@ public class PatientService {
                 .stream()
                 .map(PatientSummaryResponse::from)
                 .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public Page<PatientSummaryResponse> searchPatients(PatientSearchCriteria criteria, Pageable pageable) {
+        return patientRepository.searchSummaries(
+                criteria.firstName(),
+                criteria.lastName(),
+                criteria.active(),
+                criteria.gender(),
+                pageable
+        );
     }
 
     public PatientResponse createPatient(CreatePatientRequest request) {
@@ -111,16 +121,13 @@ public class PatientService {
     }
 
     public List<PatientNameResponse> getPatientNames() {
-        return patientRepository.findByActiveTrue()
-                .stream()
-                .map(PatientNameResponse::from)
-                .toList();
+        return patientRepository.findActivePatientNames();
     }
 
     @Transactional
     public long deleteAllPatients() {
         long count = patientRepository.count();
-        patientRepository.deleteAll();
+        patientRepository.deleteAllInBatch();
         logger.warn("All {} patients deleted", count);
         return count;
     }

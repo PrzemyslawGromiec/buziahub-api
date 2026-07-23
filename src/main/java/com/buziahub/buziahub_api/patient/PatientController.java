@@ -3,6 +3,10 @@ package com.buziahub.buziahub_api.patient;
 import com.buziahub.buziahub_api.patient.dto.*;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -47,6 +51,15 @@ public class PatientController {
     public ResponseEntity<List<PatientSummaryResponse>> searchPatients(
             @ModelAttribute PatientSearchCriteria criteria) {
         return ResponseEntity.ok(patientService.searchPatients(criteria));
+    }
+
+    @GetMapping("/search/paginated")
+    public ResponseEntity<Page<PatientSummaryResponse>> searchPatients(
+            @ModelAttribute PatientSearchCriteria criteria,
+            @PageableDefault(page = 0, size = 10, sort = "lastName", direction = Sort.Direction.ASC)
+            Pageable pageable
+    ) {
+        return ResponseEntity.ok(patientService.searchPatients(criteria, pageable));
     }
 
     @PostMapping

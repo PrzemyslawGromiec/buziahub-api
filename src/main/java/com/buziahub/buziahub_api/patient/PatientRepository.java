@@ -35,4 +35,7 @@ public interface PatientRepository extends JpaRepository<Patient, Long>, JpaSpec
                 WHERE p.active = true
             """)
     List<PatientNameResponse> findActivePatientNames();
+
+    long countByCommentsStartingWith(String prefix);
+    long deleteByCommentsStartingWith(String prefix);
 }

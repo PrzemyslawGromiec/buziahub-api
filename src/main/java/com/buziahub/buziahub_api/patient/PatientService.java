@@ -3,6 +3,8 @@ package com.buziahub.buziahub_api.patient;
 import com.buziahub.buziahub_api.exceptions.InvalidPatientSearchCriteriaException;
 import com.buziahub.buziahub_api.exceptions.PatientNotFoundException;
 import com.buziahub.buziahub_api.patient.dto.*;
+import com.buziahub.buziahub_api.patient.seed.PatientSeedConstants;
+import com.buziahub.buziahub_api.patient.seed.PatientSeedDataRunner;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -128,6 +130,11 @@ public class PatientService {
         patientRepository.deleteAllInBatch();
         logger.warn("All {} patients deleted", count);
         return count;
+    }
+
+    @Transactional
+    public long deleteSeededPatients() {
+        return patientRepository.deleteByCommentsStartingWith(PatientSeedConstants.MARKER);
     }
 
     private Patient findPatientOrThrow(Long patientId) {

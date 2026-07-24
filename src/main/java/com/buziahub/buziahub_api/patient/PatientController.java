@@ -113,4 +113,17 @@ public class PatientController {
                 )
         );
     }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @DeleteMapping("/seeded")
+    public ResponseEntity<DeleteResponse> deleteSeeded() {
+        long deletedCount = patientService.deleteSeededPatients();
+        return ResponseEntity.ok(
+                new DeleteResponse(
+                        "Seeded patients deleted successfully",
+                        deletedCount,
+                        System.currentTimeMillis()
+                )
+        );
+    }
 }

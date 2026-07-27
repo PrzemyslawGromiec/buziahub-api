@@ -40,4 +40,12 @@ public class GlobalExceptionHandler {
         problemDetail.setDetail(ex.getMessage());
         return problemDetail;
     }
+
+    @ExceptionHandler(InactivePatientAppointmentNotAllowedException.class)
+    public ProblemDetail handleInactivePatientAppointmentNotAllowedException(InactivePatientAppointmentNotAllowedException ex) {
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.CONFLICT);
+        problemDetail.setTitle("Inactive Patient Appointment");
+        problemDetail.setDetail(ex.getMessage());
+        return problemDetail;
+    }
 }

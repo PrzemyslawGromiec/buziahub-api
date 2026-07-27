@@ -11,10 +11,12 @@ import org.springframework.data.jpa.repository.Query;
 
 
 import java.util.List;
+import java.util.Optional;
 
 public interface PatientRepository extends JpaRepository<Patient, Long>, JpaSpecificationExecutor<Patient> {
 
     List<Patient> findByActiveTrue();
+    Optional<Patient> findByIdAndActiveTrue(Long id);
 
     List<Patient> findByFirstNameStartingWith(String prefix);
 

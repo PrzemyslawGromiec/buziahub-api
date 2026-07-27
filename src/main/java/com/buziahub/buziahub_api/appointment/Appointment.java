@@ -1,5 +1,9 @@
 package com.buziahub.buziahub_api.appointment;
 
+import com.buziahub.buziahub_api.exceptions.InvalidAppointmentCreationException;
+import com.buziahub.buziahub_api.exceptions.InvalidAppointmentStateTransitionException;
+import com.buziahub.buziahub_api.exceptions.InvalidAppointmentTimeRangeException;
+import com.buziahub.buziahub_api.exceptions.PatientNotFoundException;
 import com.buziahub.buziahub_api.patient.Patient;
 import jakarta.persistence.*;
 import lombok.*;
@@ -44,6 +48,13 @@ public class Appointment {
             LocalDateTime startTime,
             LocalDateTime endTime
     ) {
+        if (patient == null) {
+            throw new InvalidAppointmentCreationException("Patient is required");
+        }
+        if (startTime == null || endTime == null || !endTime.isAfter(startTime)) {
+            throw new InvalidAppointmentTimeRangeException("End time must be after start time");
+        }
+
         return Appointment.builder()
                 .patient(patient)
                 .startTime(startTime)
@@ -55,10 +66,16 @@ public class Appointment {
     }
 
     public void cancel() {
+        if (status == AppointmentStatus.COMPLETED) {
+            throw new InvalidAppointmentStateTransitionException("Completed appointment cannot be cancelled");
+        }
         this.status = AppointmentStatus.CANCELLED;
     }
 
     public void complete() {
+        if (status == AppointmentStatus.CANCELLED || status == AppointmentStatus.NO_SHOW) {
+            throw new InvalidAppointmentStateTransitionException("Cannot complete appointment in status: " + this.status);
+        }
         this.status = AppointmentStatus.COMPLETED;
     }
 

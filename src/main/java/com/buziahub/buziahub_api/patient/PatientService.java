@@ -84,10 +84,9 @@ public class PatientService {
     ) {
         Patient patient = findPatientOrThrow(patientId);
 
-        patient.updateName(
-                request.firstName(),
-                request.lastName()
-        );
+        String firstName = request.firstName() != null ? request.firstName().trim() : null;
+        String lastName = request.lastName() != null ? request.lastName().trim() : null;
+        patient.updateName(firstName, lastName);
         return PatientResponse.from(patient);
     }
 
@@ -121,6 +120,11 @@ public class PatientService {
 
     public List<PatientNameResponse> getPatientNames() {
         return patientRepository.findActivePatientNames();
+    }
+
+    @Transactional(readOnly = true)
+    public Page<RecentPatientResponse> getRecentPatients(Pageable pageable) {
+        return patientRepository.findRecentActivePatients(pageable);
     }
 
     @Transactional

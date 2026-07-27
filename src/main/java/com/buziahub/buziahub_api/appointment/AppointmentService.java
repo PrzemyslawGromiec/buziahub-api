@@ -4,6 +4,7 @@ import com.buziahub.buziahub_api.appointment.dto.AppointmentResponse;
 import com.buziahub.buziahub_api.appointment.dto.AppointmentSummary;
 import com.buziahub.buziahub_api.appointment.dto.CreateAppointmentRequest;
 import com.buziahub.buziahub_api.appointment.dto.PatientAppointmentOverviewResponse;
+import com.buziahub.buziahub_api.exceptions.InvalidAppointmentTimeRangeException;
 import com.buziahub.buziahub_api.exceptions.PatientNotFoundException;
 import com.buziahub.buziahub_api.patient.Patient;
 import com.buziahub.buziahub_api.patient.PatientRepository;
@@ -25,6 +26,10 @@ public class AppointmentService {
     private final PatientRepository patientRepository;
 
     public AppointmentResponse createAppointment(CreateAppointmentRequest request) {
+        if (!request.endTime().isAfter(request.startTime())) {
+            throw new InvalidAppointmentTimeRangeException("End time must be after start time");
+        }
+
         Patient patient = patientRepository.findById(request.patientId())
                 .orElseThrow(() -> new PatientNotFoundException(request.patientId()));
 

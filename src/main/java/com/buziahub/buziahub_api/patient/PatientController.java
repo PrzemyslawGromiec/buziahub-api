@@ -13,7 +13,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/patients")
@@ -99,6 +98,14 @@ public class PatientController {
     @GetMapping("/names")
     public ResponseEntity<List<PatientNameResponse>> getAllPatientNames() {
         return ResponseEntity.ok(patientService.getPatientNames());
+    }
+
+    @GetMapping("/recent")
+    public ResponseEntity<Page<RecentPatientResponse>> getRecentPatients(
+            @PageableDefault(page = 0, size = 10)
+            Pageable pageable
+    ) {
+        return ResponseEntity.ok(patientService.getRecentPatients(pageable));
     }
 
     @PreAuthorize("hasRole('ADMIN')")

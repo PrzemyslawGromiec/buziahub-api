@@ -9,7 +9,7 @@ public record UpdatePatientNameRequest(
                 message = "First name cannot exceed 50 characters"
         )
         @Pattern(
-                regexp = "^[\\p{L}' -]+$",
+                regexp = "^(?=.*\\p{L})\\p{L}(?:[\\p{L}' -]{0,48}\\p{L})?$",
                 message = "First name contains invalid characters"
         )
         String firstName,
@@ -19,7 +19,7 @@ public record UpdatePatientNameRequest(
                 message = "Last name cannot exceed 50 characters"
         )
         @Pattern(
-                regexp = "^[\\p{L}' -]+$",
+                regexp = "^(?=.*\\p{L})\\p{L}(?:[\\p{L}' -]{0,48}\\p{L})?$",
                 message = "Last name contains invalid characters"
         )
         String lastName

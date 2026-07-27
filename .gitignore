@@ -1,4 +1,5 @@
 ### Build ###
+.github/copilot-instructions.md
 target/
 
 ### Environment variables ###

@@ -4,7 +4,6 @@ import com.buziahub.buziahub_api.exceptions.InvalidPatientSearchCriteriaExceptio
 import com.buziahub.buziahub_api.exceptions.PatientNotFoundException;
 import com.buziahub.buziahub_api.patient.dto.*;
 import com.buziahub.buziahub_api.patient.seed.PatientSeedConstants;
-import com.buziahub.buziahub_api.patient.seed.PatientSeedDataRunner;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

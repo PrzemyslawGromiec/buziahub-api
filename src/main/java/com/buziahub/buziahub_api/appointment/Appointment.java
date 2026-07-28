@@ -52,12 +52,17 @@ public class Appointment {
             throw new InvalidAppointmentCreationException("Patient is required");
         }
 
+        if (startTime == null) {
+            throw new InvalidAppointmentTimeRangeException("Appointment start time is required");
+        }
+        if (endTime == null) {
+            throw new InvalidAppointmentTimeRangeException("Appointment end time is required");
+        }
+        if (!endTime.isAfter(startTime)) {
+            throw new InvalidAppointmentTimeRangeException("End time must be after start time");
+        }
         if (startTime.isBefore(LocalDateTime.now())) {
             throw new InvalidAppointmentTimeRangeException("Appointment start time cannot be in the past");
-        }
-
-        if (startTime == null || endTime == null || !endTime.isAfter(startTime)) {
-            throw new InvalidAppointmentTimeRangeException("End time must be after start time");
         }
 
         return Appointment.builder()

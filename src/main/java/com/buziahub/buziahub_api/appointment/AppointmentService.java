@@ -6,6 +6,7 @@ import com.buziahub.buziahub_api.appointment.dto.CreateAppointmentRequest;
 import com.buziahub.buziahub_api.appointment.dto.PatientAppointmentOverviewResponse;
 import com.buziahub.buziahub_api.exceptions.InactivePatientAppointmentNotAllowedException;
 import com.buziahub.buziahub_api.exceptions.InvalidAppointmentTimeRangeException;
+import com.buziahub.buziahub_api.exceptions.OverlappingAppointmentException;
 import com.buziahub.buziahub_api.exceptions.PatientNotFoundException;
 import com.buziahub.buziahub_api.patient.Patient;
 import com.buziahub.buziahub_api.patient.PatientRepository;
@@ -41,6 +42,17 @@ public class AppointmentService {
                     return exists ? new InactivePatientAppointmentNotAllowedException(request.patientId())
                             : new PatientNotFoundException(request.patientId());
                 });
+
+        boolean overlaps = appointmentRepository
+                .existsOverlappingAppointment(
+                        request.patientId(),
+                        request.startTime(),
+                        request.endTime(),
+                        AppointmentStatus.BOOKED);
+
+        if (overlaps) {
+            throw new OverlappingAppointmentException("Appointment overlaps with an existing appointment");
+        }
 
         Appointment appointment = Appointment.create(
                 patient,

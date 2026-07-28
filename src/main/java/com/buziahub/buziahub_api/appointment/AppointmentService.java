@@ -27,6 +27,10 @@ public class AppointmentService {
     private final PatientRepository patientRepository;
 
     public AppointmentResponse createAppointment(CreateAppointmentRequest request) {
+        if (request.startTime().isBefore(LocalDateTime.now())) {
+            throw new InvalidAppointmentTimeRangeException("Appointment start time cannot be in the past");
+        }
+
         if (!request.endTime().isAfter(request.startTime())) {
             throw new InvalidAppointmentTimeRangeException("End time must be after start time");
         }

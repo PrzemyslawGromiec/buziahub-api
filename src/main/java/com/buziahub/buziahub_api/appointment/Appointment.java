@@ -51,6 +51,11 @@ public class Appointment {
         if (patient == null) {
             throw new InvalidAppointmentCreationException("Patient is required");
         }
+
+        if (startTime.isBefore(LocalDateTime.now())) {
+            throw new InvalidAppointmentTimeRangeException("Appointment start time cannot be in the past");
+        }
+
         if (startTime == null || endTime == null || !endTime.isAfter(startTime)) {
             throw new InvalidAppointmentTimeRangeException("End time must be after start time");
         }

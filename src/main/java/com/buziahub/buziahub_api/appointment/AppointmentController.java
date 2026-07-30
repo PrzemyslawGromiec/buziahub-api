@@ -5,13 +5,16 @@ import com.buziahub.buziahub_api.appointment.dto.AppointmentSummary;
 import com.buziahub.buziahub_api.appointment.dto.CreateAppointmentRequest;
 import com.buziahub.buziahub_api.appointment.dto.PatientAppointmentOverviewResponse;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Validated
 @RestController
 @RequestMapping("/api/v1/appointments")
 @RequiredArgsConstructor
@@ -40,7 +43,7 @@ public class AppointmentController {
 
     @GetMapping("/patients/{patientId}/next")
     public ResponseEntity<AppointmentSummary> getFutureAppointment(
-            @PathVariable Long patientId
+            @PathVariable @Positive(message = "patientId must be greater than 0") Long patientId
     ) {
         return appointmentService.getNextAppointment(patientId)
                 .map(ResponseEntity::ok)
@@ -49,21 +52,21 @@ public class AppointmentController {
 
     @GetMapping("/patients/{patientId}/future")
     public ResponseEntity<List<AppointmentSummary>> getAllFutureAppointments(
-            @PathVariable Long patientId
+            @PathVariable @Positive(message = "patientId must be greater than 0") Long patientId
     ) {
         return ResponseEntity.ok(appointmentService.getFutureBookedAppointments(patientId));
     }
 
     @GetMapping("/patients/{patientId}/past")
     public ResponseEntity<List<AppointmentSummary>> getPatientPastAppointments(
-            @PathVariable Long patientId
+            @PathVariable @Positive(message = "patientId must be greater than 0") Long patientId
     ) {
         return ResponseEntity.ok(appointmentService.getPastAppointments(patientId));
     }
 
     @GetMapping("/patients/{patientId}/overview")
     public ResponseEntity<PatientAppointmentOverviewResponse> getPatientAppointmentOverview(
-            @PathVariable Long patientId
+            @PathVariable @Positive(message = "patientId must be greater than 0") Long patientId
     ) {
         return ResponseEntity.ok(
                 appointmentService.getPatientAppointmentsOverview(patientId)

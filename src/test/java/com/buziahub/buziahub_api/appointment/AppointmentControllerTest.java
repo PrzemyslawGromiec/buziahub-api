@@ -15,6 +15,7 @@ import java.util.List;
 
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -27,12 +28,12 @@ public class AppointmentControllerTest {
     private MockMvc mockMvc;
 
     @MockitoBean
-    private AppointmentService  appointmentService;
+    private AppointmentService appointmentService;
 
     @Test
     void shouldReturnEmptyListWhenPatientHasNoFutureAppointments() throws Exception {
         given(appointmentService.getFutureBookedAppointments(10006L))
-        .willReturn(List.of());
+                .willReturn(List.of());
 
         mockMvc.perform(get("/api/v1/appointments/patients/10006/future"))
                 .andExpect(status().isOk())
@@ -46,15 +47,18 @@ public class AppointmentControllerTest {
     @Test
     void shouldReturnFutureAppointmentsForPatientWhenAppointmentsExist() throws Exception {
 
+        LocalDateTime firstStart = LocalDateTime.of(2026, 8, 1, 10, 0);
+        LocalDateTime secondStart = LocalDateTime.of(2026, 8, 8, 14, 30);
+
         AppointmentSummary firstAppointment = bookedAppointment(
                 1L,
-                LocalDateTime.now().plusMinutes(1)
+                firstStart
         );
 
 
         AppointmentSummary secondAppointment = bookedAppointment(
                 2L,
-                LocalDateTime.now().plusMinutes(2)
+                secondStart
         );
 
         given(appointmentService.getFutureBookedAppointments(10006L))
@@ -77,6 +81,20 @@ public class AppointmentControllerTest {
                 .andExpect(jsonPath("$[1].status").value("BOOKED"));
 
         verify(appointmentService).getFutureBookedAppointments(10006L);
+    }
+
+    @Test
+    void shouldReturnBadRequestWhenPatientIdIsNotNumeric() throws Exception {
+
+        mockMvc.perform(get("/api/v1/appointments/patients/abc/future"))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().contentTypeCompatibleWith("application/problem+json"))
+                .andExpect(jsonPath("$.title").value("Invalid Patient ID"))
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.detail").value("Patient ID is invalid"))
+                .andExpect(jsonPath("$.errors.patientId").value("Invalid value: abc"));
+
+        verifyNoInteractions(appointmentService);
     }
 
     private AppointmentSummary bookedAppointment(Long id, LocalDateTime startTime) {

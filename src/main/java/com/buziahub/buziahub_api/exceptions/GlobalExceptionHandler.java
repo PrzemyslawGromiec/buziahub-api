@@ -9,6 +9,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -112,6 +113,25 @@ public class GlobalExceptionHandler {
         ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
         problemDetail.setTitle("Malformed Request Body");
         problemDetail.setDetail("Request body is malformed or contains invalid value types.");
+        return problemDetail;
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ProblemDetail handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException ex) {
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        problemDetail.setTitle("Invalid Request Parameter");
+        problemDetail.setDetail("Request body contains invalid or missing values");
+        String parameterName = ex.getName();
+        Object invalidValue = ex.getValue();
+
+        if ("patientId".equals(parameterName)) {
+            problemDetail.setTitle("Invalid Patient ID");
+            problemDetail.setDetail("Patient ID is invalid");
+        }
+
+        Map<String, String> errorDetails = new LinkedHashMap<>();
+        errorDetails.put(parameterName, "Invalid value: " + invalidValue);
+        problemDetail.setProperty("errors", errorDetails);
         return problemDetail;
     }
 

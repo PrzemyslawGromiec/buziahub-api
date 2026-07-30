@@ -186,10 +186,4 @@ public class AppointmentService {
         return patientRepository.findById(patientId)
                 .orElseThrow(() -> new PatientNotFoundException(patientId));
     }
-
-    /*
-    getAppointmentById()
-    cancelAppointment()*/
-
-
 }

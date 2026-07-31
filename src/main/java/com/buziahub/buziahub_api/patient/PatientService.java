@@ -45,15 +45,6 @@ public class PatientService {
     }
 
     @Transactional(readOnly = true)
-    public List<PatientSummaryResponse> searchPatients(PatientSearchCriteria criteria) {
-        return patientRepository
-                .findAll(PatientSpecification.withCriteria(criteria))
-                .stream()
-                .map(PatientSummaryResponse::from)
-                .toList();
-    }
-
-    @Transactional(readOnly = true)
     public Page<PatientSummaryResponse> searchPatients(PatientSearchCriteria criteria, Pageable pageable) {
         validateSearchCriteria(criteria);
         return patientRepository

@@ -47,12 +47,6 @@ public class PatientController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<PatientSummaryResponse>> searchPatients(
-            @ModelAttribute PatientSearchCriteria criteria) {
-        return ResponseEntity.ok(patientService.searchPatients(criteria));
-    }
-
-    @GetMapping("/search/paginated")
     public ResponseEntity<Page<PatientSummaryResponse>> searchPatients(
             @ModelAttribute PatientSearchCriteria criteria,
             @PageableDefault(page = 0, size = 10, sort = "lastName", direction = Sort.Direction.ASC)

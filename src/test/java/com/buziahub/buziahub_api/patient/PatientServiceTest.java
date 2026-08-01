@@ -1,15 +1,17 @@
 package com.buziahub.buziahub_api.patient;
 
+import com.buziahub.buziahub_api.common.Gender;
 import com.buziahub.buziahub_api.exceptions.PatientNotFoundException;
-import com.buziahub.buziahub_api.patient.dto.CreatePatientRequest;
-import com.buziahub.buziahub_api.patient.dto.PatientResponse;
-import com.buziahub.buziahub_api.patient.dto.UpdatePatientNameRequest;
+import com.buziahub.buziahub_api.patient.dto.*;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.*;
+import org.springframework.data.jpa.domain.Specification;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -174,5 +176,67 @@ public class PatientServiceTest {
         assertEquals("London", response.address());
         assertEquals("+447756467364", response.phoneNumber());
         assertEquals(patient.getActive(), response.active());
+    }
+
+    @Test
+    void searchPatients_shouldReturnMappedPageWhenCriteriaAreValid() {
+        // happy path, dto mapping, page metadata
+
+        //arrange
+        PatientSearchCriteria criteria = new PatientSearchCriteria(
+                "An",
+                null,
+                Gender.FEMALE,
+                true,
+                TextMatchMode.PREFIX
+        );
+
+        Pageable pageable = PageRequest.of(0, 10, Sort.by("lastName").ascending());
+
+        Patient first = Patient.create(
+                "Anna",
+                "Smith",
+                null,
+                Gender.FEMALE,
+                "123 Main St",
+                "+447744567636",
+                null,
+                null
+        );
+
+        Patient second = Patient.create(
+                "Ann",
+                "Boolean",
+                null,
+                Gender.FEMALE,
+                "123 Main St",
+                "+447744567637",
+                null,
+                null
+        );
+
+
+        Page<Patient> repositoryPage = new PageImpl<>(List.of(first, second), pageable, 2);
+
+        when(patientRepository.findAll(any(Specification.class), eq(pageable)))
+                .thenReturn(repositoryPage);
+
+        // act
+        Page<PatientSummaryResponse> result = patientService.searchPatients(criteria, pageable);
+
+        // assert
+        verify(patientRepository).findAll(any(Specification.class), eq(pageable));
+        assertEquals(2, result.getTotalElements());
+        assertEquals(1, result.getTotalPages());
+        assertEquals(0, result.getNumber());
+        assertEquals(2, result.getContent().size());
+
+        assertEquals("Anna", result.getContent().get(0).firstName());
+        assertEquals("Smith", result.getContent().get(0).lastName());
+        assertEquals("+447744567636", result.getContent().get(0).phoneNumber());
+
+        assertEquals("Ann", result.getContent().get(1).firstName());
+        assertEquals("Boolean", result.getContent().get(1).lastName());
+        assertEquals("+447744567637", result.getContent().get(1).phoneNumber());
     }
 }

@@ -272,6 +272,43 @@ public class PatientServiceTest {
                 "CONTAINS mode requires at least 2 characters for firstName and lastName",
                 ex.getMessage()
         );
+    }
 
+    @Test
+    void updateContactDetails_shouldUpdateContactFieldsAndPreserveOtherPatientData() {
+        //arrange
+        Long patientId = 1L;
+        UpdatePatientContactDetails details = new UpdatePatientContactDetails(
+                "456 New St, London",
+                "+447755566677",
+                "John Doe"
+        );
+
+        Patient patient = Patient.create(
+                "Adam",
+                "Borom"
+                , null,
+                null,
+                "London",
+                "+447756467364",
+                null,
+                null
+        );
+
+        when(patientRepository.findById(patientId))
+                .thenReturn(Optional.of(patient));
+        //act
+        PatientResponse response = patientService.updateContactDetails(patientId, details);
+
+        //assert
+        verify(patientRepository).findById(patientId);
+        verify(patientRepository, never()).save(any(Patient.class));
+        assertEquals("456 New St, London", response.address());
+        assertEquals("+447755566677", response.phoneNumber());
+        assertEquals("John Doe", response.emergencyContact());
+        assertEquals(patient.getActive(), response.active());
+        assertEquals("Adam", response.firstName());
+        assertEquals("Borom", response.lastName());
+        assertFalse(response.emergencyContact().isBlank());
     }
 }

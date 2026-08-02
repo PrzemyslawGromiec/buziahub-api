@@ -64,33 +64,6 @@ public class PatientServiceTest {
     }
 
     @Test
-    void repositorySave_shouldSavePatient() {
-
-        CreatePatientRequest request =
-                new CreatePatientRequest(
-                        "Adam",
-                        "Borom",
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null
-                );
-
-        when(patientRepository.save(any(Patient.class)))
-                .thenAnswer(invocation -> invocation.getArgument(0));
-
-        PatientResponse response =
-                patientService.createPatient(request);
-
-        assertEquals("Adam", response.firstName());
-        assertEquals("Borom", response.lastName());
-
-        verify(patientRepository).save(any(Patient.class));
-    }
-
-    @Test
     void archivePatient_shouldSetPatientAsInactive() {
 
         Patient patient = Patient.create(
@@ -138,6 +111,34 @@ public class PatientServiceTest {
         assertEquals("Borom", response.lastName());
         assertTrue(response.active());
 
+        verify(patientRepository).save(any(Patient.class));
+    }
+
+    @Test
+    void createPatient_shouldThrowWhenSaveFails() {
+
+        // arrange
+        CreatePatientRequest request = new CreatePatientRequest(
+                "Adam",
+                "Borom"
+                , null,
+                null,
+                null,
+                null,
+                null,
+                null
+        );
+
+        when(patientRepository.save(any(Patient.class)))
+                .thenThrow(new RuntimeException("Database error"));
+
+        // act
+        RuntimeException exception = assertThrows(
+                RuntimeException.class,
+                () -> patientService.createPatient(request));
+
+        // assert
+        assertEquals("Database error", exception.getMessage());
         verify(patientRepository).save(any(Patient.class));
     }
 

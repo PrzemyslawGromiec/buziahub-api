@@ -1,6 +1,7 @@
 package com.buziahub.buziahub_api.patient;
 
 import com.buziahub.buziahub_api.common.Gender;
+import com.buziahub.buziahub_api.exceptions.InvalidPatientSearchCriteriaException;
 import com.buziahub.buziahub_api.exceptions.PatientNotFoundException;
 import com.buziahub.buziahub_api.patient.dto.*;
 import org.junit.jupiter.api.Test;
@@ -238,5 +239,39 @@ public class PatientServiceTest {
         assertEquals("Ann", result.getContent().get(1).firstName());
         assertEquals("Boolean", result.getContent().get(1).lastName());
         assertEquals("+447744567637", result.getContent().get(1).phoneNumber());
+    }
+
+    @Test
+    void searchPatients_shouldThrowWhenContainsSearchTermIsTooShort() {
+        // arrange
+        // input objects, mock dependency return value, mock behaviour, shared constants, test data
+        // matchMode=Contains, firstName or lastName ="B", pageable can be any real valid, repo should not be called
+        // exception should be thrown
+        PatientSearchCriteria criteria = new PatientSearchCriteria(
+                "A",
+                null,
+                null,
+                null,
+                TextMatchMode.CONTAINS
+        );
+
+        Pageable pageable = PageRequest.of(0, 10, Sort.by("lastName").ascending());
+
+        // act
+        // Act + Assert: call the method inside assertThrows
+        // because this scenario expects an exceptionrows()
+
+        InvalidPatientSearchCriteriaException ex = assertThrows(
+                InvalidPatientSearchCriteriaException.class,
+                () -> patientService.searchPatients(criteria, pageable)
+        );
+
+        // assert
+        verifyNoInteractions(patientRepository);
+        assertEquals(
+                "CONTAINS mode requires at least 2 characters for firstName and lastName",
+                ex.getMessage()
+        );
+
     }
 }
